@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arekta Bitesize | আরেকটা বাইটসাইজ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Noto+Serif+Bengali:wght@400;700&family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .bn-font {
+            font-family: 'Noto Serif Bengali', serif;
+        }
+        .en-font {
+            font-family: 'Merriweather', serif;
+        }
+        
+        /* Smooth Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Toast Animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-animate {
+            animation: slideInUp 0.3s ease-out forwards;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+        <div class="container mx-auto px-4">
+            <!-- Top Bar -->
+            <div class="flex flex-col md:flex-row justify-between items-center py-4 border-b border-gray-100 gap-4">
+                <div class="text-gray-500 text-sm hidden md:block font-medium w-1/3" id="current-date">
+                    Loading date...
+                </div>
+                
+                <!-- Pure HTML/CSS Logo -->
+                <div class="text-center cursor-pointer select-none flex justify-center w-1/3" onclick="window.location.hash=''; app.switchView('home');">
+                    <div class="flex items-center bg-[#232222] text-[#fbfaf5] px-4 py-1.5 rounded-md shadow-sm transition-transform hover:scale-105">
+                        <span class="text-[3.5rem] font-black leading-none tracking-tighter mr-1" style="font-family: 'Inter', sans-serif;">A</span>
+                        <div class="flex flex-col justify-center items-start leading-none mt-2" style="font-family: 'Inter', sans-serif;">
+                            <span class="text-[1.3rem] font-bold tracking-tight mb-[1px]">rekta</span>
+                            <span class="text-[1.6rem] font-normal tracking-tight">Bitesize</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 w-1/3">
+                    <button onclick="app.toggleLanguage()" class="px-5 py-2 text-sm font-bold bg-gray-100 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 transition shadow-sm" id="lang-toggle-btn">
+                        বাংলা
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Categories -->
+            <nav class="overflow-x-auto py-3 hide-scroll">
+                <ul class="flex items-center justify-start md:justify-center gap-6 md:gap-8 text-sm font-bold text-gray-700 whitespace-nowrap px-2" id="nav-menu">
+                    <!-- Categories injected by JS -->
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <!-- Frontend Home View -->
+        <div id="view-home" class="block">
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="flex justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-20 text-gray-500 bg-white rounded-xl shadow-sm border border-gray-200">
+                <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l2 2h4a2 2 0 012 2v10a2 2 0 01-2 2z" />
+                </svg>
+                <h3 class="mt-2 text-lg font-semibold text-gray-900" id="empty-title">No news articles found</h3>
+                <p class="mt-1 text-sm text-gray-500" id="empty-desc">Please wait while we load the latest news...</p>
+            </div>
+
+            <!-- News Grid -->
+            <div id="news-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Articles injected by JS -->
+            </div>
+        </div>
+
+        <!-- Admin Portal View -->
+        <div id="view-admin" class="hidden">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4 bg-slate-900 text-white p-6 rounded-xl">
+                <div>
+                    <h2 class="text-3xl font-black flex items-center gap-2" id="admin-title">
+                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Admin Portal
+                    </h2>
+                    <p class="text-slate-300 text-sm mt-1" id="admin-subtitle">Manage and publish news articles</p>
+                </div>
+                <button onclick="window.location.hash=''; app.switchView('home');" class="bg-white text-slate-900 px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition text-sm" id="back-home-btn">&larr; Back to Website</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Post Form -->
+                <div class="lg:col-span-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
+                    <h3 class="text-lg font-bold mb-6 text-gray-800 border-b border-gray-100 pb-3" id="admin-form-title">Publish New Article</h3>
+                    <form id="post-form" onsubmit="app.handlePostSubmit(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1" id="lbl-title-en">Headline (English)</label>
+                            <input type="text" id="post-title-en" required placeholder="Enter English headline..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1" id="lbl-title-bn">Headline (Bangla)</label>
+                            <input type="text" id="post-title-bn" required placeholder="Enter Bangla headline..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1" id="lbl-category">Category</label>
+                            <select id="post-category" required class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                                <option value="national">National (দেশ)</option>
+                                <option value="international">International (বিদেশ)</option>
+                                <option value="sports">Sports (খেলা)</option>
+                                <option value="entertainment">Entertainment (বিনোদন)</option>
+                                <option value="tech">Technology (প্রযুক্তি)</option>
+                                <option value="opinion">Opinion (মতামত)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1" id="lbl-image">Image URL</label>
+                            <input type="url" id="post-image" placeholder="https://example.com/image.jpg" required class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1" id="lbl-content-en">Article Content (English)</label>
+                            <textarea id="post-content-en" required rows="4" placeholder="Write the English news story here..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"></textarea>
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-1" id="lbl-content-bn">Article Content (Bangla)</label>
+                            <textarea id="post-content-bn" required rows="4" placeholder="Write the Bangla news story here..." class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition shadow-md" id="btn-publish">
+                            Publish Article
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Published Articles Management -->
+                <div class="lg:col-span-8 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[800px]">
+                    <div class="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center rounded-t-xl">
+                        <h3 class="text-lg font-bold text-gray-800" id="admin-list-title">Manage Articles</h3>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold" id="admin-count">0 Published</span>
+                    </div>
+                    <div class="p-5 flex-grow overflow-y-auto" id="admin-articles-list">
+                        <!-- Admin list items injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm mt-auto border-t border-slate-800">
+        <div class="container mx-auto px-4 flex flex-col items-center">
+            <div class="flex items-center text-[#fbfaf5] opacity-50 mb-4 scale-75">
+                <span class="text-[3rem] font-black leading-none tracking-tighter mr-1" style="font-family: 'Inter', sans-serif;">A</span>
+                <div class="flex flex-col justify-center items-start leading-none mt-1.5" style="font-family: 'Inter', sans-serif;">
+                    <span class="text-[1.2rem] font-bold tracking-tight mb-[1px]">rekta</span>
+                    <span class="text-[1.5rem] font-normal tracking-tight">Bitesize</span>
+                </div>
+            </div>
+            <p id="footer-text">&copy; 2026 Arekta Bitesize. Bilingual news platform.</p>
+        </div>
+    </footer>
+
+    <!-- Full Article Reader Modal -->
+    <div id="article-modal" class="fixed inset-0 bg-slate-900/90 z-[100] hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300" id="article-modal-content">
+            <div class="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50 rounded-t-xl">
+                <span class="text-xs font-black uppercase tracking-wider text-blue-600 bg-blue-100 px-2 py-1 rounded" id="modal-category">Category</span>
+                <button onclick="app.closeModal()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="overflow-y-auto p-6 md:p-10 flex-grow">
+                <h1 class="text-3xl md:text-5xl font-black mb-4 text-gray-900 leading-tight" id="modal-title">Title</h1>
+                <p class="text-sm text-gray-500 mb-8 flex items-center gap-2 font-medium" id="modal-date">Date</p>
+                <img id="modal-image" src="" alt="Cover" class="w-full h-auto max-h-[400px] object-cover rounded-xl mb-8 shadow-sm hidden">
+                <div class="text-lg text-gray-800 whitespace-pre-wrap leading-relaxed" id="modal-body">
+                    Content...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/80 z-[110] hidden opacity-0 transition-opacity duration-200 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full transform scale-95 transition-transform duration-200" id="confirm-modal-content">
+            <h3 class="text-xl font-bold text-gray-900 mb-2" id="confirm-title">Delete Article?</h3>
+            <p class="text-gray-600 mb-6 text-sm" id="confirm-desc">This action is permanent and cannot be undone.</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="app.closeConfirmModal()" class="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition" id="btn-cancel">Cancel</button>
+                <button id="btn-confirm-delete" onclick="app.executeDelete()" class="px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        let firebaseConfig = { projectId: "demo-project" };
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config;
+            }
+        } catch (e) {
+            console.error("Config parse error, using fallback.");
+        }
+
+        const appFirebase = initializeApp(firebaseConfig);
+        const auth = getAuth(appFirebase);
+        const db = getFirestore(appFirebase);
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'arektabitesize-app';
+        const articlesRef = collection(db, 'artifacts', appId, 'public', 'data', 'articles');
+
+        // i18n Definitions
+        const texts = {
+            en: {
+                toggleLang: "বাংলা",
+                nav: { all: "All News", national: "National", international: "International", sports: "Sports", entertainment: "Entertainment", tech: "Technology", opinion: "Opinion" },
+                backHome: "← Back to Website",
+                readMore: "Read Full Story",
+                adminTitle: "Admin Portal",
+                adminSub: "Manage and publish news articles",
+                publishTitle: "Publish New Article",
+                lblTitleEn: "Headline (English)",
+                lblTitleBn: "Headline (Bangla)",
+                lblCategory: "Category",
+                lblImage: "Cover Image URL",
+                lblContentEn: "Article Content (English)",
+                lblContentBn: "Article Content (Bangla)",
+                btnPublish: "Publish Article",
+                publishing: "Publishing...",
+                adminListTitle: "Manage Articles",
+                emptyTitle: "No news articles found",
+                emptyDesc: "Please wait while we load the latest news...",
+                footer: "© 2026 Arekta Bitesize. Bilingual news platform.",
+                delTitle: "Delete Article?",
+                delDesc: "This action is permanent and cannot be undone.",
+                btnCancel: "Cancel",
+                btnDelete: "Delete",
+                toastSuccess: "Article published successfully!",
+                toastDeleted: "Article removed."
+            },
+            bn: {
+                toggleLang: "English",
+                nav: { all: "সব খবর", national: "দেশ", international: "বিদেশ", sports: "খেলা", entertainment: "বিনোদন", tech: "প্রযুক্তি", opinion: "মতামত" },
+                backHome: "← ওয়েবসাইটে ফিরে যান",
+                readMore: "বিস্তারিত পড়ুন",
+                adminTitle: "অ্যাডমিন পোর্টাল",
+                adminSub: "খবর পরিচালনা এবং প্রকাশ করুন",
+                publishTitle: "নতুন খবর প্রকাশ করুন",
+                lblTitleEn: "শিরোনাম (ইংরেজি)",
+                lblTitleBn: "শিরোনাম (বাংলা)",
+                lblCategory: "বিভাগ",
+                lblImage: "ছবির লিংক (URL)",
+                lblContentEn: "খবরের বিস্তারিত (ইংরেজি)",
+                lblContentBn: "খবরের বিস্তারিত (বাংলা)",
+                btnPublish: "প্রকাশ করুন",
+                publishing: "প্রকাশ হচ্ছে...",
+                adminListTitle: "খবর পরিচালনা",
+                emptyTitle: "কোনো খবর পাওয়া যায়নি",
+                emptyDesc: "নতুন খবর লোড হচ্ছে, দয়া করে অপেক্ষা করুন...",
+                footer: "© ২০২৬ আরেকটা বাইটসাইজ। দ্বিভাষিক সংবাদ মাধ্যম।",
+                delTitle: "খবরটি মুছে ফেলবেন?",
+                delDesc: "এটি স্থায়ীভাবে মুছে যাবে এবং ফিরে পাওয়া যাবে না।",
+                btnCancel: "বাতিল",
+                btnDelete: "মুছে ফেলুন",
+                toastSuccess: "খবর সফলভাবে প্রকাশিত হয়েছে!",
+                toastDeleted: "খবর মুছে ফেলা হয়েছে।"
+            }
+        };
+
+        const CATEGORIES = ['all', 'national', 'international', 'sports', 'entertainment', 'tech', 'opinion'];
+
+        // Global App Object
+        window.app = {
+            lang: 'en',
+            view: 'home',
+            currentCat: 'all',
+            articles: [],
+            authReady: false,
+            itemToDelete: null,
+            initialLoad: true,
+
+            init: async () => {
+                app.updateLangUI();
+                app.checkHashAndView();
+
+                window.addEventListener('hashchange', () => {
+                    app.checkHashAndView();
+                });
+                
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    app.authReady = true;
+                    app.seedData(); // Will only seed if missing
+                    app.listenForArticles();
+                } catch (err) {
+                    console.error("Auth failed:", err);
+                    app.showToast("Authentication failed", "error");
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                    document.getElementById('empty-state').classList.remove('hidden');
+                }
+            },
+
+            checkHashAndView: () => {
+                const isAdmin = window.location.hash === '#admin';
+                app.view = isAdmin ? 'admin' : 'home';
+                app.applyView();
+            },
+
+            listenForArticles: () => {
+                if (!app.authReady) return;
+                
+                onSnapshot(articlesRef, (snapshot) => {
+                    app.articles = [];
+                    snapshot.forEach(doc => {
+                        app.articles.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    app.articles.sort((a, b) => b.createdAt - a.createdAt);
+                    
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                    app.render();
+                }, (error) => {
+                    console.error("Fetch error:", error);
+                    app.showToast("Error fetching data", "error");
+                    document.getElementById('loading-indicator').classList.add('hidden');
+                });
+            },
+
+            seedData: async () => {
+                if (!app.authReady) return;
+                
+                const seedArticles = [
+                    {
+                        id: 'seed-ishraque',
+                        titleEn: 'Ishraque Announces Resignation as State Minister',
+                        titleBn: 'প্রতিমন্ত্রীর পদ থেকে ইশরাক হোসেনের পদত্যাগের ঘোষণা',
+                        contentEn: 'State Minister for Liberation War Affairs, Ishraque Hossain, has announced his voluntary resignation following widespread public outrage over a viral video. The footage showed him brandishing a firearm during an "anti-drug drive" in Old Dhaka. At a press briefing at the Jatiya Press Club, he confirmed he is stepping down following instructions from Prime Minister Tarique Rahman. The incident, which also showed his associates carrying weapons near Gandaria Railway Station, sparked an investigation by the DMP. Ishraque stated he would continue his anti-drug efforts as a political activist.\n\nSource: The Daily Star',
+                        contentBn: 'একটি ভাইরাল ভিডিওকে কেন্দ্র করে ব্যাপক সমালোচনার মুখে মুক্তিযুদ্ধ বিষয়ক প্রতিমন্ত্রী ইশরাক হোসেন স্বেচ্ছায় পদত্যাগের ঘোষণা দিয়েছেন। ভিডিওতে দেখা যায়, পুরান ঢাকায় তথাকথিত মাদকবিরোধী অভিযানে তিনি অস্ত্র হাতে মহড়া দিচ্ছেন। জাতীয় প্রেস ক্লাবে এক সংবাদ সম্মেলনে ইশরাক জানান, প্রধানমন্ত্রী তারেক রহমানের নির্দেশে তিনি পদত্যাগ করছেন। গেন্ডারিয়া রেলওয়ে স্টেশনের কাছে তার সশস্ত্র সহযোগীদেরও দেখা যায়, যা দেশজুড়ে তীব্র প্রতিক্রিয়া সৃষ্টি করে। ঢাকা মেট্রোপলিটন পুলিশ (ডিএমপি) এ বিষয়ে তদন্ত শুরু করেছে। ইশরাক জানিয়েছেন, তিনি রাজনৈতিক কর্মী হিসেবে তার অভিযান অব্যাহত রাখবেন।\n\nসূত্র: দ্য ডেইলি স্টার',
+                        category: 'national',
+                        image: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800',
+                        createdAt: Date.now() - 1000,
+                        authorId: auth.currentUser.uid
+                    },
+                    {
+                        id: 'seed-rooppur',
+                        titleEn: 'Rooppur Nuclear Power Plant Unit 1 Officially Connects to National Grid',
+                        titleBn: 'রূপপুর পারমাণবিক বিদ্যুৎ কেন্দ্রের প্রথম ইউনিট জাতীয় গ্রিডে যুক্ত',
+                        contentEn: 'Bangladesh enters a new era as the first unit of the Rooppur Nuclear Power Plant officially begins supplying electricity to the national grid in October 2026. The 1,200 MW capacity unit will significantly reduce power shortages across the country and propel industrial growth in the northern districts.\n\nSource: Dhaka Tribune',
+                        contentBn: '২০২৬ সালের অক্টোবরে রূপপুর পারমাণবিক বিদ্যুৎ কেন্দ্রের প্রথম ইউনিট আনুষ্ঠানিকভাবে জাতীয় গ্রিডে বিদ্যুৎ সরবরাহ শুরু করার মাধ্যমে বাংলাদেশ এক নতুন যুগে প্রবেশ করল। ১২০০ মেগাওয়াট ক্ষমতার এই ইউনিট দেশজুড়ে বিদ্যুৎ ঘাটতি উল্লেখযোগ্যভাবে কমাবে এবং উত্তরাঞ্চলের জেলাগুলোতে শিল্পায়নকে ত্বরান্বিত করবে।\n\nসূত্র: ঢাকা ট্রিবিউন',
+                        category: 'national',
+                        image: 'https://images.unsplash.com/photo-1533221588636-f001cdd6e864?w=800',
+                        createdAt: Date.now() - 2000,
+                        authorId: auth.currentUser.uid
+                    },
+                    {
+                        id: 'seed-colombia',
+                        titleEn: 'Massive Landslide at Colombia Gold Mine Leaves Dozens Trapped',
+                        titleBn: 'কলম্বিয়ার সোনার খনিতে ভয়াবহ ভূমিধস, আটকা পড়েছেন বহু শ্রমিক',
+                        contentEn: 'Desperate rescue operations are underway after a massive landslide hit an informal gold mine in northwestern Colombia. Heavy rainfall over the past week destabilized the terrain. Local emergency authorities state that at least 20 miners are currently trapped underground.\n\nSource: BBC News',
+                        contentBn: 'কলম্বিয়ার উত্তর-পশ্চিমাঞ্চলের একটি অবৈধ সোনার খনিতে ভয়াবহ ভূমিধসের পর মরিয়া হয়ে উদ্ধারকাজ চলছে। গত এক সপ্তাহের প্রবল বৃষ্টিপাতের কারণে মাটি আলগা হয়ে এই ধসের সৃষ্টি হয়। স্থানীয় জরুরি সেবা কর্তৃপক্ষ জানিয়েছে, অন্তত ২০ জন খনি শ্রমিক বর্তমানে ভূগর্ভে আটকা পড়েছেন।\n\nসূত্র: বিবিসি নিউজ',
+                        category: 'international',
+                        image: 'https://images.unsplash.com/photo-1621251915444-2f22b7941785?w=800',
+                        createdAt: Date.now() - 3000,
+                        authorId: auth.currentUser.uid
+                    },
+                    {
+                        id: 'seed-cricket',
+                        titleEn: 'Bangladesh Secures Thrilling Victory Against Zimbabwe in T20 Opener',
+                        titleBn: 'জিম্বাবুয়ের বিপক্ষে টি-টোয়েন্টি সিরিজের প্রথম ম্যাচে বাংলাদেশের রোমাঞ্চকর জয়',
+                        contentEn: 'The Bangladesh cricket team delivered a stellar performance to defeat Zimbabwe by 4 wickets in the first match of the bilateral T20 series in Harare. Chasing a formidable target of 178, Towhid Hridoy\'s match-winning half-century secured the game in the final over.\n\nSource: ESPNcricinfo',
+                        contentBn: 'হারারেতে দ্বিপাক্ষিক টি-টোয়েন্টি সিরিজের প্রথম ম্যাচে জিম্বাবুয়েকে ৪ উইকেটে হারিয়ে দারুণ সূচনা করেছে বাংলাদেশ ক্রিকেট দল। ১৭৮ রানের বিশাল লক্ষ্য তাড়া করতে নেমে শেষ ওভারে তাওহীদ হৃদয়ের ম্যাচজয়ী হাফ সেঞ্চুরিতে জয় নিশ্চিত হয়।\n\nসূত্র: ইএসপিএনক্রিকইনফো',
+                        category: 'sports',
+                        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800',
+                        createdAt: Date.now() - 4000,
+                        authorId: auth.currentUser.uid
+                    },
+                    {
+                        id: 'seed-apple',
+                        titleEn: 'Apple Finally Unveils the Revolutionary "iPhone Duo" Foldable',
+                        titleBn: 'বহুল প্রতীক্ষিত ফোল্ডেবল স্মার্টফোন "আইফোন ডুও" উন্মোচন করল অ্যাপল',
+                        contentEn: 'Apple has officially entered the foldable market with the grand launch of the "iPhone Duo" in October 2026. Featuring an ultra-thin clamshell design, the device promises completely crease-less displays and a revolutionary hinge mechanism tested for millions of folds.\n\nSource: The Verge',
+                        contentBn: '২০২৬ সালের অক্টোবরে বহুল প্রতীক্ষিত "আইফোন ডুও" লঞ্চ করার মাধ্যমে আনুষ্ঠানিকভাবে ফোল্ডেবল স্মার্টফোনের বাজারে প্রবেশ করেছে অ্যাপল। অতি-পাতলা ক্ল্যামশেল ডিজাইনের এই ডিভাইসে সম্পূর্ণ ক্রিজ-বিহীন ডিসপ্লে এবং একটি অত্যাধুনিক কব্জা মেকানিজম রয়েছে।\n\nসূত্র: দ্য ভার্জ',
+                        category: 'tech',
+                        image: 'https://images.unsplash.com/photo-1512054502232-10a0a035d672?w=800',
+                        createdAt: Date.now() - 5000,
+                        authorId: auth.currentUser.uid
+                    }
+                ];
+
+                try {
+                    // Using setDoc to prevent duplicating these specific 5 seeded articles
+                    for (const article of seedArticles) {
+                        const { id, ...data } = article;
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'articles', id), data, { merge: true });
+                    }
+                } catch (e) {
+                    console.error("Seeding failed", e);
+                }
+            },
+
+            render: () => {
+                app.renderNav();
+                if (app.view === 'home') app.renderHome();
+                else app.renderAdmin();
+            },
+
+            renderNav: () => {
+                const html = CATEGORIES.map(cat => {
+                    const active = app.currentCat === cat 
+                        ? 'text-blue-600 border-b-2 border-blue-600' 
+                        : 'text-gray-600 hover:text-blue-600 border-b-2 border-transparent';
+                    const font = app.lang === 'bn' ? 'bn-font' : 'en-font tracking-wide';
+                    return `
+                        <li>
+                            <button onclick="app.setCategory('${cat}')" class="pb-2 uppercase transition-colors duration-200 ${active} ${font}">
+                                ${texts[app.lang].nav[cat]}
+                            </button>
+                        </li>
+                    `;
+                }).join('');
+                document.getElementById('nav-menu').innerHTML = html;
+            },
+
+            renderHome: () => {
+                const grid = document.getElementById('news-grid');
+                const empty = document.getElementById('empty-state');
+                
+                const filtered = app.currentCat === 'all' 
+                    ? app.articles 
+                    : app.articles.filter(a => a.category === app.currentCat);
+
+                if (filtered.length === 0) {
+                    grid.classList.add('hidden');
+                    empty.classList.remove('hidden');
+                } else {
+                    empty.classList.add('hidden');
+                    grid.classList.remove('hidden');
+                    
+                    grid.innerHTML = filtered.map((article, index) => {
+                        // Make the first item featured if viewing all categories
+                        const isFeatured = index === 0 && app.currentCat === 'all';
+                        const colSpan = isFeatured ? 'md:col-span-2 lg:col-span-2 row-span-2' : '';
+                        const titleSize = isFeatured ? 'text-2xl md:text-3xl' : 'text-xl';
+                        const font = app.lang === 'bn' ? 'bn-font' : 'en-font';
+                        const defaultImg = `https://placehold.co/800x500/0f172a/ffffff?text=${texts[app.lang].nav[article.category]}`;
+                        
+                        const title = app.lang === 'bn' ? (article.titleBn || article.title) : (article.titleEn || article.title);
+                        const content = app.lang === 'bn' ? (article.contentBn || article.content) : (article.contentEn || article.content);
+                        const snippet = (content || '').substring(0, isFeatured ? 250 : 120) + '...';
+
+                        return `
+                        <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col group ${colSpan}" onclick="app.openArticle('${article.id}')">
+                            <div class="relative h-48 ${isFeatured ? 'md:h-80' : ''} w-full overflow-hidden bg-gray-100">
+                                <img src="${article.image || defaultImg}" alt="News Cover" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onerror="this.src='${defaultImg}'">
+                                <span class="absolute top-3 left-3 bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded uppercase shadow-md ${app.lang==='bn'?'bn-font':'tracking-widest'}">
+                                    ${texts[app.lang].nav[article.category]}
+                                </span>
+                            </div>
+                            <div class="p-5 md:p-6 flex flex-col flex-grow">
+                                <h3 class="${titleSize} font-bold text-gray-900 mb-3 ${font} group-hover:text-blue-600 transition-colors line-clamp-3 leading-snug">${title}</h3>
+                                <p class="text-gray-600 text-sm mb-4 flex-grow line-clamp-3 leading-relaxed">${snippet}</p>
+                                <div class="flex justify-between items-center mt-auto pt-4 border-t border-gray-100">
+                                    <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">${app.formatDate(article.createdAt)}</span>
+                                    <span class="text-blue-600 text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                                        ${texts[app.lang].readMore} &rarr;
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                        `;
+                    }).join('');
+                }
+            },
+
+            renderAdmin: () => {
+                const list = document.getElementById('admin-articles-list');
+                const count = document.getElementById('admin-count');
+                count.innerText = `${app.articles.length} Published`;
+
+                if (app.articles.length === 0) {
+                    list.innerHTML = `<div class="text-center py-10 text-gray-500 font-medium">No articles yet.</div>`;
+                    return;
+                }
+
+                list.innerHTML = app.articles.map(article => {
+                    const title = app.lang === 'bn' ? (article.titleBn || article.title) : (article.titleEn || article.title);
+                    return `
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 mb-3 bg-white border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                        <div class="flex-grow pr-4 mb-3 sm:mb-0">
+                            <span class="inline-block px-2 py-1 bg-gray-100 text-xs font-black text-gray-600 rounded mb-2 uppercase">
+                                ${texts[app.lang].nav[article.category]}
+                            </span>
+                            <h4 class="font-bold text-gray-900 text-lg ${app.lang === 'bn' ? 'bn-font' : 'en-font'} line-clamp-1">${title}</h4>
+                            <p class="text-xs text-gray-500 mt-1 font-medium">${app.formatDate(article.createdAt)}</p>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="app.openArticle('${article.id}')" class="flex-1 sm:flex-none px-4 py-2 text-xs font-bold bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">View</button>
+                            <button onclick="app.confirmDelete('${article.id}')" class="flex-1 sm:flex-none px-4 py-2 text-xs font-bold bg-red-50 text-red-600 rounded hover:bg-red-100 transition">Delete</button>
+                        </div>
+                    </div>
+                `}).join('');
+            },
+
+            applyView: () => {
+                if (app.view === 'home') {
+                    document.getElementById('view-home').classList.remove('hidden');
+                    document.getElementById('view-admin').classList.add('hidden');
+                    if(app.currentCat !== 'all') app.setCategory('all'); 
+                } else {
+                    document.getElementById('view-home').classList.add('hidden');
+                    document.getElementById('view-admin').classList.remove('hidden');
+                }
+                app.render();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            switchView: (viewName) => {
+                if(viewName === 'home') {
+                    window.location.hash = '';
+                } else {
+                    window.location.hash = '#admin';
+                }
+            },
+            
+            setCategory: (cat) => {
+                if (app.view !== 'home') app.switchView('home');
+                app.currentCat = cat;
+                app.render();
+            },
+
+            toggleLanguage: () => {
+                app.lang = app.lang === 'en' ? 'bn' : 'en';
+                app.updateLangUI();
+                app.render();
+            },
+
+            updateLangUI: () => {
+                const t = texts[app.lang];
+
+                document.getElementById('lang-toggle-btn').innerText = t.toggleLang;
+                document.getElementById('back-home-btn').innerHTML = t.backHome;
+                
+                document.getElementById('admin-title').innerHTML = `
+                    <svg class="w-8 h-8 text-blue-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    ${t.adminTitle}`;
+                document.getElementById('admin-subtitle').innerText = t.adminSub;
+                document.getElementById('admin-form-title').innerText = t.publishTitle;
+                
+                document.getElementById('lbl-title-en').innerText = t.lblTitleEn;
+                document.getElementById('lbl-title-bn').innerText = t.lblTitleBn;
+                document.getElementById('lbl-content-en').innerText = t.lblContentEn;
+                document.getElementById('lbl-content-bn').innerText = t.lblContentBn;
+                
+                document.getElementById('lbl-category').innerText = t.lblCategory;
+                document.getElementById('lbl-image').innerText = t.lblImage;
+                document.getElementById('btn-publish').innerText = t.btnPublish;
+                document.getElementById('admin-list-title').innerText = t.adminListTitle;
+
+                document.getElementById('empty-title').innerText = t.emptyTitle;
+                document.getElementById('empty-desc').innerText = t.emptyDesc;
+                document.getElementById('footer-text').innerHTML = t.footer;
+
+                document.getElementById('confirm-title').innerText = t.delTitle;
+                document.getElementById('confirm-desc').innerText = t.delDesc;
+                document.getElementById('btn-cancel').innerText = t.btnCancel;
+                document.getElementById('btn-confirm-delete').innerText = t.btnDelete;
+
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('current-date').innerText = new Date().toLocaleDateString(app.lang === 'bn' ? 'bn-BD' : 'en-US', options);
+            },
+
+            handlePostSubmit: async (e) => {
+                e.preventDefault();
+                if (!auth.currentUser) return app.showToast("Auth required", "error");
+
+                const btn = document.getElementById('btn-publish');
+                const prevText = btn.innerText;
+                btn.innerText = texts[app.lang].publishing;
+                btn.disabled = true;
+                btn.classList.add('opacity-70');
+
+                try {
+                    await addDoc(articlesRef, {
+                        titleEn: document.getElementById('post-title-en').value.trim(),
+                        titleBn: document.getElementById('post-title-bn').value.trim(),
+                        contentEn: document.getElementById('post-content-en').value.trim(),
+                        contentBn: document.getElementById('post-content-bn').value.trim(),
+                        category: document.getElementById('post-category').value,
+                        image: document.getElementById('post-image').value.trim(),
+                        createdAt: Date.now(),
+                        authorId: auth.currentUser.uid
+                    });
+                    app.showToast(texts[app.lang].toastSuccess, "success");
+                    document.getElementById('post-form').reset();
+                    app.switchView('home');
+                } catch (error) {
+                    app.showToast("Failed to publish", "error");
+                } finally {
+                    btn.innerText = prevText;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-70');
+                }
+            },
+
+            confirmDelete: (id) => {
+                app.itemToDelete = id;
+                const m = document.getElementById('confirm-modal');
+                const c = document.getElementById('confirm-modal-content');
+                m.classList.remove('hidden');
+                setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
+            },
+
+            closeConfirmModal: () => {
+                app.itemToDelete = null;
+                const m = document.getElementById('confirm-modal');
+                const c = document.getElementById('confirm-modal-content');
+                m.classList.add('opacity-0'); c.classList.add('scale-95');
+                setTimeout(() => m.classList.add('hidden'), 200);
+            },
+
+            executeDelete: async () => {
+                if (!app.itemToDelete || !auth.currentUser) return;
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'articles', app.itemToDelete));
+                    app.showToast(texts[app.lang].toastDeleted, "success");
+                    app.closeConfirmModal();
+                } catch (error) {
+                    app.showToast("Failed to delete", "error");
+                }
+            },
+
+            openArticle: (id) => {
+                const article = app.articles.find(a => a.id === id);
+                if (!article) return;
+
+                const title = app.lang === 'bn' ? (article.titleBn || article.title) : (article.titleEn || article.title);
+                const content = app.lang === 'bn' ? (article.contentBn || article.content) : (article.contentEn || article.content);
+
+                document.getElementById('modal-category').innerText = texts[app.lang].nav[article.category];
+                document.getElementById('modal-title').className = `text-3xl md:text-5xl font-black mb-4 text-gray-900 leading-tight ${app.lang === 'bn' ? 'bn-font' : 'en-font'}`;
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-date').innerText = app.formatDate(article.createdAt);
+                
+                const img = document.getElementById('modal-image');
+                if (article.image) {
+                    img.src = article.image;
+                    img.classList.remove('hidden');
+                } else {
+                    img.classList.add('hidden');
+                }
+
+                // Add styling to make the content look like a real newspaper article
+                const formattedContent = content.split('\n\n').map(p => `<p class="mb-4">${p}</p>`).join('');
+                document.getElementById('modal-body').innerHTML = formattedContent;
+
+                const m = document.getElementById('article-modal');
+                const c = document.getElementById('article-modal-content');
+                m.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // prevent background scrolling
+                setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }, 10);
+            },
+
+            closeModal: () => {
+                const m = document.getElementById('article-modal');
+                const c = document.getElementById('article-modal-content');
+                m.classList.add('opacity-0'); c.classList.add('scale-95');
+                document.body.style.overflow = 'auto'; // restore background scrolling
+                setTimeout(() => m.classList.add('hidden'), 300);
+            },
+
+            showToast: (msg, type = 'info') => {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                const bg = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+                toast.className = `${bg} text-white px-5 py-3 rounded-lg shadow-xl text-sm font-bold flex items-center gap-3 toast-animate`;
+                toast.innerHTML = `<span>${msg}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(100%)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            },
+
+            formatDate: (ts) => {
+                const d = new Date(ts);
+                const locale = app.lang === 'bn' ? 'bn-BD' : 'en-US';
+                return d.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
+        };
+
+        // Initialize App immediately
+        app.init();
+
+    </script>
+</body>
+</html>
