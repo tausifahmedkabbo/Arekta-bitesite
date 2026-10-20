@@ -5,258 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arekta Bitesize - News Portal</title>
     <style>
-        :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --accent-color: #bb86fc;
-            --border-color: #333333;
-            --danger-color: #cf6679;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-        }
-
-        header {
-            background-color: var(--surface-color);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        /* Custom Logo CSS */
-        .logo-container {
-            display: flex;
-            align-items: flex-end;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-            color: #fdfdf5;
-            letter-spacing: -1px;
-            user-select: none;
-        }
-        .logo-a {
-            font-size: 50px;
-            line-height: 40px;
-            margin-right: 2px;
-        }
-        .logo-text-group {
-            display: flex;
-            flex-direction: column;
-            line-height: 1;
-        }
-        .logo-rekta {
-            font-size: 24px;
-            margin-bottom: -4px;
-            letter-spacing: 0;
-        }
-        .logo-bitesize {
-            font-size: 32px;
-            font-weight: normal;
-        }
-
-        nav {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding: 10px 20px;
-            background-color: var(--bg-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        nav a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            white-space: nowrap;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background-color: var(--surface-color);
-        }
-
-        nav a:hover {
-            color: var(--text-primary);
-            background-color: #333;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            background-color: var(--surface-color);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background-color: #333;
-        }
-
-        .primary-btn {
-            background-color: var(--accent-color);
-            color: #000;
-            font-weight: bold;
-            border: none;
-        }
-
-        .primary-btn:hover {
-            background-color: #9965f4;
-        }
-
-        .danger-btn {
-            background-color: var(--danger-color);
-            color: #000;
-            border: none;
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-
-        #loading {
-            text-align: center;
-            padding: 50px;
-            font-size: 18px;
-            color: var(--text-secondary);
-        }
-
-        /* News Grid */
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .news-card {
-            background-color: var(--surface-color);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .news-image {
-            width: 100%;
-            height: 180px;
-            background-color: #333;
-            object-fit: cover;
-        }
-
-        .news-content {
-            padding: 15px;
-            flex-grow: 1;
-        }
-
-        .news-category {
-            font-size: 12px;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .news-title {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-            line-height: 1.4;
-        }
-
-        .news-text {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin: 0 0 15px 0;
-            line-height: 1.5;
-        }
-
-        .news-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-secondary);
-            padding-top: 10px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* Admin Panel */
-        #admin-panel {
-            display: none;
-            background-color: var(--surface-color);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-secondary);
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 10px;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        .form-group textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        .bilingual-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .bilingual-fields {
-                grid-template-columns: 1fr;
-            }
-        }
+        :root { --bg-color: #121212; --surface-color: #1e1e1e; --text-primary: #ffffff; --text-secondary: #b3b3b3; --accent-color: #bb86fc; --border-color: #333333; --danger-color: #cf6679; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-primary); }
+        header { background-color: var(--surface-color); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .logo-container { display: flex; align-items: flex-end; font-family: Arial, sans-serif; font-weight: bold; color: #fdfdf5; letter-spacing: -1px; user-select: none; }
+        .logo-a { font-size: 50px; line-height: 40px; margin-right: 2px; }
+        .logo-text-group { display: flex; flex-direction: column; line-height: 1; }
+        .logo-rekta { font-size: 24px; margin-bottom: -4px; letter-spacing: 0; }
+        .logo-bitesize { font-size: 32px; font-weight: normal; }
+        nav { display: flex; gap: 15px; overflow-x: auto; padding: 10px 20px; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); }
+        nav a { color: var(--text-secondary); text-decoration: none; font-size: 14px; white-space: nowrap; padding: 5px 10px; border-radius: 20px; background-color: var(--surface-color); }
+        nav a:hover { color: var(--text-primary); background-color: #333; }
+        button { background-color: var(--surface-color); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background-color: #333; }
+        .primary-btn { background-color: var(--accent-color); color: #000; font-weight: bold; border: none; }
+        .primary-btn:hover { background-color: #9965f4; }
+        .danger-btn { background-color: var(--danger-color); color: #000; border: none; padding: 5px 10px; font-size: 12px; }
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        #loading { text-align: center; padding: 50px; font-size: 18px; color: var(--text-secondary); }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .news-card { background-color: var(--surface-color); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .news-image { width: 100%; height: 180px; background-color: #333; object-fit: cover; }
+        .news-content { padding: 15px; flex-grow: 1; }
+        .news-category { font-size: 12px; color: var(--accent-color); text-transform: uppercase; font-weight: bold; margin-bottom: 8px; }
+        .news-title { font-size: 18px; margin: 0 0 10px 0; line-height: 1.4; }
+        .news-text { font-size: 14px; color: var(--text-secondary); margin: 0 0 15px 0; line-height: 1.5; }
+        .news-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-secondary); padding-top: 10px; border-top: 1px solid var(--border-color); }
+        #admin-panel { display: none; background-color: var(--surface-color); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-secondary); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; background-color: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 4px; box-sizing: border-box; }
+        .form-group textarea { height: 100px; resize: vertical; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .bilingual-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) { .bilingual-fields { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-
     <header>
         <div class="logo-container">
             <div class="logo-a">A</div>
@@ -265,11 +50,8 @@
                 <div class="logo-bitesize">Bitesize</div>
             </div>
         </div>
-        <div class="controls">
-            <button id="lang-toggle">বাংলা</button>
-        </div>
+        <div><button id="lang-toggle">বাংলা</button></div>
     </header>
-
     <nav id="navbar">
         <a href="#" data-en="All" data-bn="সব">All</a>
         <a href="#" data-en="National" data-bn="দেশ">National</a>
@@ -279,270 +61,98 @@
         <a href="#" data-en="Technology" data-bn="প্রযুক্তি">Technology</a>
         <a href="#" data-en="Opinion" data-bn="মতামত">Opinion</a>
     </nav>
-
     <div class="container">
-        
         <div id="loading">Connecting to Database...<br>
             <small style="font-size:14px; color:var(--danger-color); display:block; margin-top:10px;" id="error-msg"></small>
         </div>
-
         <div id="news-feed" class="news-grid"></div>
-
         <div id="admin-panel">
             <div class="admin-header">
-                <h2>Admin Portal - Publish News</h2>
+                <h2>Admin Portal</h2>
                 <button onclick="window.location.hash=''" style="background:var(--bg-color)">Exit Admin</button>
             </div>
-            
             <form id="post-form">
-                <div class="form-group">
-                    <label>Category</label>
-                    <select id="cat" required>
-                        <option value="National">National (দেশ)</option>
-                        <option value="International">International (বিদেশ)</option>
-                        <option value="Sports">Sports (খেলা)</option>
-                        <option value="Entertainment">Entertainment (বিনোদন)</option>
-                        <option value="Technology">Technology (প্রযুক্তি)</option>
-                        <option value="Opinion">Opinion (মতামত)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="url" id="img-url" placeholder="https://example.com/image.jpg" required>
-                </div>
-
+                <div class="form-group"><label>Category</label><select id="cat" required><option value="National">National</option><option value="International">International</option><option value="Sports">Sports</option><option value="Entertainment">Entertainment</option><option value="Technology">Technology</option><option value="Opinion">Opinion</option></select></div>
+                <div class="form-group"><label>Image URL</label><input type="url" id="img-url" required></div>
                 <div class="bilingual-fields">
-                    <div>
-                        <h3>English Version</h3>
-                        <div class="form-group">
-                            <label>Headline (English)</label>
-                            <input type="text" id="title-en" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Content (English)</label>
-                            <textarea id="desc-en" required></textarea>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3>Bangla Version</h3>
-                        <div class="form-group">
-                            <label>Headline (Bangla)</label>
-                            <input type="text" id="title-bn" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Content (Bangla)</label>
-                            <textarea id="desc-bn" required></textarea>
-                        </div>
-                    </div>
+                    <div><h3>English</h3><div class="form-group"><label>Headline</label><input type="text" id="title-en" required></div><div class="form-group"><label>Content</label><textarea id="desc-en" required></textarea></div></div>
+                    <div><h3>Bangla</h3><div class="form-group"><label>Headline</label><input type="text" id="title-bn" required></div><div class="form-group"><label>Content</label><textarea id="desc-bn" required></textarea></div></div>
                 </div>
-
-                <div class="form-group">
-                    <label>Source/Attribution</label>
-                    <input type="text" id="source" placeholder="e.g. The Daily Star" required>
-                </div>
-
+                <div class="form-group"><label>Source</label><input type="text" id="source" required></div>
                 <button type="submit" class="primary-btn">Publish News Live</button>
             </form>
             <br><hr style="border-color: var(--border-color)"><br>
-            <h3>Manage Published News</h3>
+            <h3>Manage News</h3>
             <div id="admin-news-list"></div>
         </div>
-
     </div>
-
-    <script type="module">
+        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
-
         const errorMsg = document.getElementById('error-msg');
         const loading = document.getElementById('loading');
-
         try {
-            const firebaseConfig = {
-                apiKey: "AIzaSyC0LeqT4QrNrx6WHm8eI_KZlAs9dybK3QY",
-                authDomain: "arekta-bitesize.firebaseapp.com",
-                projectId: "arekta-bitesize",
-                storageBucket: "arekta-bitesize.firebasestorage.app",
-                messagingSenderId: "671136231131",
-                appId: "1:671136231131:web:64a45e85eb34165dff26fe",
-                measurementId: "G-ZPDB5BWKX5"
-            };
-
+            const firebaseConfig = { apiKey: "AIzaSyC0LeqT4QrNrx6WHm8eI_KZlAs9dybK3QY", authDomain: "arekta-bitesize.firebaseapp.com", projectId: "arekta-bitesize", storageBucket: "arekta-bitesize.firebasestorage.app", messagingSenderId: "671136231131", appId: "1:671136231131:web:64a45e85eb34165dff26fe", measurementId: "G-ZPDB5BWKX5" };
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
-
-            // App State
-            let currentLang = 'en'; 
-            let allNewsData = [];
-
-            // UI Elements
-            const langToggleBtn = document.getElementById('lang-toggle');
-            const newsFeed = document.getElementById('news-feed');
-            const adminPanel = document.getElementById('admin-panel');
-            const adminNewsList = document.getElementById('admin-news-list');
-            const postForm = document.getElementById('post-form');
-            const navbar = document.getElementById('navbar');
-
+            let currentLang = 'en', allNewsData = [];
+            const langToggleBtn = document.getElementById('lang-toggle'), newsFeed = document.getElementById('news-feed'), adminPanel = document.getElementById('admin-panel'), adminNewsList = document.getElementById('admin-news-list'), postForm = document.getElementById('post-form'), navbar = document.getElementById('navbar');
             function checkRoute() {
-                if (window.location.hash === '#admin') {
-                    adminPanel.style.display = 'block';
-                    newsFeed.style.display = 'none';
-                    loading.style.display = 'none';
-                } else {
-                    adminPanel.style.display = 'none';
-                    newsFeed.style.display = 'grid';
-                }
+                if (window.location.hash === '#admin') { adminPanel.style.display = 'block'; newsFeed.style.display = 'none'; loading.style.display = 'none'; } 
+                else { adminPanel.style.display = 'none'; newsFeed.style.display = 'grid'; }
             }
-            window.addEventListener('hashchange', checkRoute);
-            checkRoute();
-
-            langToggleBtn.addEventListener('click', () => {
-                currentLang = currentLang === 'en' ? 'bn' : 'en';
-                langToggleBtn.innerText = currentLang === 'en' ? 'বাংলা' : 'English';
-                updateNavbarLanguage();
-                renderNews();
-                renderAdminList();
-            });
-
-            function updateNavbarLanguage() {
-                const links = navbar.querySelectorAll('a');
-                links.forEach(link => {
-                    link.innerText = link.getAttribute(`data-${currentLang}`);
-                });
-            }
-
-            const newsCollection = collection(db, "news");
-
-            onSnapshot(newsCollection, (snapshot) => {
-                loading.style.display = 'none'; 
-                allNewsData = [];
-                
-                snapshot.forEach((doc) => {
-                    allNewsData.push({ id: doc.id, ...doc.data() });
-                });
-
+            window.addEventListener('hashchange', checkRoute); checkRoute();
+            langToggleBtn.addEventListener('click', () => { currentLang = currentLang === 'en' ? 'bn' : 'en'; langToggleBtn.innerText = currentLang === 'en' ? 'বাংলা' : 'English'; updateNavbarLanguage(); renderNews(); renderAdminList(); });
+            function updateNavbarLanguage() { navbar.querySelectorAll('a').forEach(link => { link.innerText = link.getAttribute(`data-${currentLang}`); }); }
+            onSnapshot(collection(db, "news"), (snapshot) => {
+                loading.style.display = 'none'; allNewsData = [];
+                snapshot.forEach((doc) => { allNewsData.push({ id: doc.id, ...doc.data() }); });
                 allNewsData.sort((a, b) => b.timestamp - a.timestamp);
-
-                if (allNewsData.length === 0) {
-                    seedDatabase();
-                } else {
-                    renderNews();
-                    renderAdminList();
-                }
-            }, (error) => {
-                loading.style.display = 'block';
-                errorMsg.innerText = "Firestore Read Error: " + error.message;
-            });
-
+                if (allNewsData.length === 0) seedDatabase(); else { renderNews(); renderAdminList(); }
+            }, (error) => { loading.style.display = 'block'; errorMsg.innerText = "Firestore Read Error: " + error.message; });
             async function seedDatabase() {
                 try {
                     const seedArticles = [
-                        {
-                            id: "seed-1",
-                            category: "National",
-                            img: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=800",
-                            source: "The Daily Star",
-                            title_en: "Ishraque announces resignation as state minister",
-                            desc_en: "Ishraque Hossain today announced his voluntary resignation as state minister for Liberation War Affairs following public outrage over a viral footage.",
-                            title_bn: "প্রতিমন্ত্রী পদ থেকে ইশরাকের পদত্যাগের ঘোষণা",
-                            desc_bn: "ভাইরাল হওয়া একটি ভিডিও নিয়ে ব্যাপক সমালোচনার মুখে মুক্তিযুদ্ধ বিষয়ক প্রতিমন্ত্রী ইশরাক হোসেন স্বেচ্ছায় পদত্যাগের ঘোষণা দিয়েছেন।",
-                            timestamp: Date.now()
-                        },
-                        {
-                            id: "seed-2",
-                            category: "Technology",
-                            img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800",
-                            source: "Reuters",
-                            title_en: "Perplexity open-sources SPACE for AI agents",
-                            desc_en: "Perplexity has open-sourced SPACE, allowing developers to adapt the technology to build safer autonomous AI agents in isolated environments.",
-                            title_bn: "এআই এজেন্টের জন্য পারপ্লেক্সিটি আনলো 'স্পেস'",
-                            desc_bn: "নিরাপদ এআই এজেন্ট তৈরি করতে ডেভেলপারদের জন্য পারপ্লেক্সিটি তাদের নতুন প্ল্যাটফর্ম 'স্পেস' ওপেন-সোর্স করেছে।",
-                            timestamp: Date.now() - 1000
-                        }
+                        { id: "seed-1", category: "National", img: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=800", source: "The Daily Star", title_en: "Ishraque announces resignation as state minister", desc_en: "Ishraque Hossain today announced his voluntary resignation as state minister for Liberation War Affairs following public outrage over a viral footage.", title_bn: "প্রতিমন্ত্রী পদ থেকে ইশরাকের পদত্যাগের ঘোষণা", desc_bn: "ভাইরাল হওয়া একটি ভিডিও নিয়ে ব্যাপক সমালোচনার মুখে মুক্তিযুদ্ধ বিষয়ক প্রতিমন্ত্রী ইশরাক হোসেন স্বেচ্ছায় পদত্যাগের ঘোষণা দিয়েছেন।", timestamp: Date.now() },
+                        { id: "seed-2", category: "Technology", img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800", source: "Reuters", title_en: "Perplexity open-sources SPACE for AI agents", desc_en: "Perplexity has open-sourced SPACE, allowing developers to adapt the technology to build safer autonomous AI agents in isolated environments.", title_bn: "এআই এজেন্টের জন্য পারপ্লেক্সিটি আনলো 'স্পেস'", desc_bn: "নিরাপদ এআই এজেন্ট তৈরি করতে ডেভেলপারদের জন্য পারপ্লেক্সিটি তাদের নতুন প্ল্যাটফর্ম 'স্পেস' ওপেন-সোর্স করেছে।", timestamp: Date.now() - 1000 }
                     ];
-
-                    for (let article of seedArticles) {
-                        await setDoc(doc(db, "news", article.id), article);
-                    }
-                } catch (e) {
-                    loading.style.display = 'block';
-                    errorMsg.innerText = "Database Write Error: " + e.message;
-                }
+                    for (let article of seedArticles) await setDoc(doc(db, "news", article.id), article);
+                } catch (e) { loading.style.display = 'block'; errorMsg.innerText = "Database Write Error: " + e.message; }
             }
-
             function renderNews() {
                 newsFeed.innerHTML = '';
-                
                 allNewsData.forEach(news => {
-                    if(!news.title_en) return; // skip empty docs
-                    const title = currentLang === 'en' ? news.title_en : news.title_bn;
-                    const desc = currentLang === 'en' ? news.desc_en : news.desc_bn;
-                    
-                    const catMap = {
-                        "National": "দেশ", "International": "বিদেশ", 
-                        "Sports": "খেলা", "Entertainment": "বিনোদন", 
-                        "Technology": "প্রযুক্তি", "Opinion": "মতামত"
-                    };
+                    if(!news.title_en) return; 
+                    const title = currentLang === 'en' ? news.title_en : news.title_bn, desc = currentLang === 'en' ? news.desc_en : news.desc_bn;
+                    const catMap = { "National": "দেশ", "International": "বিদেশ", "Sports": "খেলা", "Entertainment": "বিনোদন", "Technology": "প্রযুক্তি", "Opinion": "মতামত" };
                     const displayCat = currentLang === 'en' ? news.category : (catMap[news.category] || news.category);
-
-                    const dateStr = new Date(news.timestamp).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'bn-BD', {
-                        month: 'short', day: 'numeric', year: 'numeric'
-                    });
-
-                    const card = document.createElement('div');
-                    card.className = 'news-card';
-                    card.innerHTML = `
-                        <img src="${news.img || 'https://via.placeholder.com/800x400'}" alt="News Image" class="news-image">
-                        <div class="news-content">
-                            <div class="news-category">${displayCat}</div>
-                            <h3 class="news-title">${title}</h3>
-                            <p class="news-text">${desc}</p>
-                            <div class="news-meta">
-                                <span>${dateStr}</span>
-                                <span>Source: ${news.source}</span>
-                            </div>
-                        </div>
-                    `;
+                    const dateStr = new Date(news.timestamp).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'bn-BD', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const card = document.createElement('div'); card.className = 'news-card';
+                    card.innerHTML = `<img src="${news.img || 'https://via.placeholder.com/800x400'}" class="news-image"><div class="news-content"><div class="news-category">${displayCat}</div><h3 class="news-title">${title}</h3><p class="news-text">${desc}</p><div class="news-meta"><span>${dateStr}</span><span>Source: ${news.source}</span></div></div>`;
                     newsFeed.appendChild(card);
                 });
             }
-
             function renderAdminList() {
                 adminNewsList.innerHTML = '';
                 allNewsData.forEach(news => {
                     if(!news.title_en) return;
                     const title = currentLang === 'en' ? news.title_en : news.title_bn;
-                    const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; align-items:center;";
-                    div.innerHTML = `
-                        <span>[${news.category}] ${title}</span>
-                        <button class="danger-btn" data-id="${news.id}">Delete</button>
-                    `;
+                    const div = document.createElement('div'); div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; align-items:center;";
+                    div.innerHTML = `<span>[${news.category}] ${title}</span><button class="danger-btn" data-id="${news.id}">Delete</button>`;
                     adminNewsList.appendChild(div);
                 });
-
-                document.querySelectorAll('.danger-btn').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        const id = e.target.getAttribute('data-id');
-                        if(confirm("Are you sure you want to delete this news?")) {
-                            await deleteDoc(doc(db, "news", id));
-                        }
-                    });
-                });
+                document.querySelectorAll('.danger-btn').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Delete this news?")) await deleteDoc(doc(db, "news", e.target.getAttribute('data-id'))); }); });
             }
-
             postForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                const submitBtn = postForm.querySelector('button[type="submit"]');
-                submitBtn.innerText = "Publishing...";
-                submitBtn.disabled = true;
-
+                const submitBtn = postForm.querySelector('button[type="submit"]'); submitBtn.innerText = "Publishing..."; submitBtn.disabled = true;
                 const newDocRef = doc(collection(db, "news"));
-                const newsData = {
-                    category: document.getElementById('cat').value,
-                    img: document.getElementById('img-url').value,
-                    title_en: document.getElementById('title-en').value,
-                    desc_en: docu
+                const newsData = { category: document.getElementById('cat').value, img: document.getElementById('img-url').value, title_en: document.getElementById('title-en').value, desc_en: document.getElementById('desc-en').value, title_bn: document.getElementById('title-bn').value, desc_bn: document.getElementById('desc-bn').value, source: document.getElementById('source').value, timestamp: Date.now() };
+                try { await setDoc(newDocRef, newsData); postForm.reset(); alert("Published Successfully!"); } 
+                catch (err) { alert("Error: " + err.message); } 
+                finally { submitBtn.innerText = "Publish News Live"; submitBtn.disabled = false; }
+            });
+        } catch (fatalError) { errorMsg.innerText = "System Error: " + fatalError.message; }
+    </script>
+</body>
+</html>
