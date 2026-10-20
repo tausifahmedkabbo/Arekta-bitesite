@@ -41,7 +41,7 @@
             align-items: flex-end;
             font-family: Arial, sans-serif;
             font-weight: bold;
-            color: #fdfdf5; /* Off-white color from screenshot */
+            color: #fdfdf5;
             letter-spacing: -1px;
             user-select: none;
         }
@@ -258,7 +258,6 @@
 <body>
 
     <header>
-        <!-- Pure CSS Logo recreating "Arekta Bitesize" -->
         <div class="logo-container">
             <div class="logo-a">A</div>
             <div class="logo-text-group">
@@ -271,7 +270,6 @@
         </div>
     </header>
 
-    <!-- Navigation categories -->
     <nav id="navbar">
         <a href="#" data-en="All" data-bn="সব">All</a>
         <a href="#" data-en="National" data-bn="দেশ">National</a>
@@ -284,13 +282,12 @@
 
     <div class="container">
         
-        <!-- Loading Spinner -->
-        <div id="loading">Connecting to Database...<br><small style="font-size:12px; color:#cf6679;" id="error-msg"></small></div>
+        <div id="loading">Connecting to Database...<br>
+            <small style="font-size:14px; color:var(--danger-color); display:block; margin-top:10px;" id="error-msg"></small>
+        </div>
 
-        <!-- News Feed Area -->
         <div id="news-feed" class="news-grid"></div>
 
-        <!-- Admin Portal Area (Hidden by default, accessible via #admin) -->
         <div id="admin-panel">
             <div class="admin-header">
                 <h2>Admin Portal - Publish News</h2>
@@ -316,7 +313,6 @@
                 </div>
 
                 <div class="bilingual-fields">
-                    <!-- English Content -->
                     <div>
                         <h3>English Version</h3>
                         <div class="form-group">
@@ -329,7 +325,6 @@
                         </div>
                     </div>
 
-                    <!-- Bangla Content -->
                     <div>
                         <h3>Bangla Version</h3>
                         <div class="form-group">
@@ -357,200 +352,197 @@
 
     </div>
 
-    <!-- Firebase SDK v10 (Modular) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
-        // Your specific Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC0LeqT4QrNrx6WHm8eI_KZlAs9dybK3QY",
-            authDomain: "arekta-bitesize.firebaseapp.com",
-            projectId: "arekta-bitesize",
-            storageBucket: "arekta-bitesize.firebasestorage.app",
-            messagingSenderId: "671136231131",
-            appId: "1:671136231131:web:64a45e85eb34165dff26fe",
-            measurementId: "G-ZPDB5BWKX5"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // App State
-        let currentLang = 'en'; // en or bn
-        let allNewsData = [];
-
-        // UI Elements
-        const langToggleBtn = document.getElementById('lang-toggle');
-        const newsFeed = document.getElementById('news-feed');
-        const adminPanel = document.getElementById('admin-panel');
-        const adminNewsList = document.getElementById('admin-news-list');
-        const loading = document.getElementById('loading');
         const errorMsg = document.getElementById('error-msg');
-        const postForm = document.getElementById('post-form');
-        const navbar = document.getElementById('navbar');
+        const loading = document.getElementById('loading');
 
-        // Check Router (Hash based admin access)
-        function checkRoute() {
-            if (window.location.hash === '#admin') {
-                adminPanel.style.display = 'block';
-                newsFeed.style.display = 'none';
-            } else {
-                adminPanel.style.display = 'none';
-                newsFeed.style.display = 'grid';
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyC0LeqT4QrNrx6WHm8eI_KZlAs9dybK3QY",
+                authDomain: "arekta-bitesize.firebaseapp.com",
+                projectId: "arekta-bitesize",
+                storageBucket: "arekta-bitesize.firebasestorage.app",
+                messagingSenderId: "671136231131",
+                appId: "1:671136231131:web:64a45e85eb34165dff26fe",
+                measurementId: "G-ZPDB5BWKX5"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            // App State
+            let currentLang = 'en'; 
+            let allNewsData = [];
+
+            // UI Elements
+            const langToggleBtn = document.getElementById('lang-toggle');
+            const newsFeed = document.getElementById('news-feed');
+            const adminPanel = document.getElementById('admin-panel');
+            const adminNewsList = document.getElementById('admin-news-list');
+            const postForm = document.getElementById('post-form');
+            const navbar = document.getElementById('navbar');
+
+            function checkRoute() {
+                if (window.location.hash === '#admin') {
+                    adminPanel.style.display = 'block';
+                    newsFeed.style.display = 'none';
+                    loading.style.display = 'none';
+                } else {
+                    adminPanel.style.display = 'none';
+                    newsFeed.style.display = 'grid';
+                }
             }
-        }
-        window.addEventListener('hashchange', checkRoute);
-        checkRoute();
+            window.addEventListener('hashchange', checkRoute);
+            checkRoute();
 
-        // Language Toggle Logic
-        langToggleBtn.addEventListener('click', () => {
-            currentLang = currentLang === 'en' ? 'bn' : 'en';
-            langToggleBtn.innerText = currentLang === 'en' ? 'বাংলা' : 'English';
-            updateNavbarLanguage();
-            renderNews();
-            renderAdminList();
-        });
-
-        function updateNavbarLanguage() {
-            const links = navbar.querySelectorAll('a');
-            links.forEach(link => {
-                link.innerText = link.getAttribute(`data-${currentLang}`);
-            });
-        }
-
-        // --- Firebase Real-time Listener & Seeding ---
-        
-        const newsCollection = collection(db, "news");
-
-        onSnapshot(newsCollection, (snapshot) => {
-            loading.style.display = 'none'; // Hide loading
-            allNewsData = [];
-            
-            snapshot.forEach((doc) => {
-                allNewsData.push({ id: doc.id, ...doc.data() });
-            });
-
-            // Sort by timestamp descending
-            allNewsData.sort((a, b) => b.timestamp - a.timestamp);
-
-            // If empty, auto-seed the database
-            if (allNewsData.length === 0) {
-                seedDatabase();
-            } else {
+            langToggleBtn.addEventListener('click', () => {
+                currentLang = currentLang === 'en' ? 'bn' : 'en';
+                langToggleBtn.innerText = currentLang === 'en' ? 'বাংলা' : 'English';
+                updateNavbarLanguage();
                 renderNews();
                 renderAdminList();
+            });
+
+            function updateNavbarLanguage() {
+                const links = navbar.querySelectorAll('a');
+                links.forEach(link => {
+                    link.innerText = link.getAttribute(`data-${currentLang}`);
+                });
             }
-        }, (error) => {
-            console.error("Firebase Error:", error);
-            errorMsg.innerText = "Error: Permission Denied. Please ensure Firestore Rules are set to 'Test Mode' (allow read, write).";
-        });
 
-        // Seed initial data to prevent empty page
-        async function seedDatabase() {
-            const seedArticles = [
-                {
-                    id: "seed-1",
-                    category: "National",
-                    img: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=800",
-                    source: "The Daily Star",
-                    title_en: "Ishraque announces resignation as state minister",
-                    desc_en: "Ishraque Hossain today announced his voluntary resignation as state minister for Liberation War Affairs following public outrage over a viral footage.",
-                    title_bn: "প্রতিমন্ত্রী পদ থেকে ইশরাকের পদত্যাগের ঘোষণা",
-                    desc_bn: "ভাইরাল হওয়া একটি ভিডিও নিয়ে ব্যাপক সমালোচনার মুখে মুক্তিযুদ্ধ বিষয়ক প্রতিমন্ত্রী ইশরাক হোসেন স্বেচ্ছায় পদত্যাগের ঘোষণা দিয়েছেন।",
-                    timestamp: Date.now()
-                },
-                {
-                    id: "seed-2",
-                    category: "Technology",
-                    img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800",
-                    source: "Reuters",
-                    title_en: "Perplexity open-sources SPACE for AI agents",
-                    desc_en: "Perplexity has open-sourced SPACE, allowing developers to adapt the technology to build safer autonomous AI agents in isolated environments.",
-                    title_bn: "এআই এজেন্টের জন্য পারপ্লেক্সিটি আনলো 'স্পেস'",
-                    desc_bn: "নিরাপদ এআই এজেন্ট তৈরি করতে ডেভেলপারদের জন্য পারপ্লেক্সিটি তাদের নতুন প্ল্যাটফর্ম 'স্পেস' ওপেন-সোর্স করেছে।",
-                    timestamp: Date.now() - 1000
-                },
-                {
-                    id: "seed-3",
-                    category: "International",
-                    img: "https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?auto=format&fit=crop&q=80&w=800",
-                    source: "Geopolitical Insights",
-                    title_en: "Houthis won't back down: What it means",
-                    desc_en: "As tensions rise, the continued stance of the Houthis is creating ripples across global trade routes and geopolitical alliances.",
-                    title_bn: "পিছপা হবে না হুতিরা: এর অর্থ কী?",
-                    desc_bn: "উত্তেজনা বৃদ্ধির সাথে সাথে হুতিদের অনড় অবস্থান বিশ্ব বাণিজ্য রুট এবং ভূ-রাজনৈতিক জোটগুলোতে প্রভাব ফেলছে।",
-                    timestamp: Date.now() - 2000
-                }
-            ];
+            const newsCollection = collection(db, "news");
 
-            for (let article of seedArticles) {
-                await setDoc(doc(db, "news", article.id), article);
-            }
-        }
-
-        // Render News on Homepage
-        function renderNews() {
-            newsFeed.innerHTML = '';
-            
-            allNewsData.forEach(news => {
-                const title = currentLang === 'en' ? news.title_en : news.title_bn;
-                const desc = currentLang === 'en' ? news.desc_en : news.desc_bn;
+            onSnapshot(newsCollection, (snapshot) => {
+                loading.style.display = 'none'; 
+                allNewsData = [];
                 
-                // Category Translation mapping
-                const catMap = {
-                    "National": "দেশ", "International": "বিদেশ", 
-                    "Sports": "খেলা", "Entertainment": "বিনোদন", 
-                    "Technology": "প্রযুক্তি", "Opinion": "মতামত"
-                };
-                const displayCat = currentLang === 'en' ? news.category : (catMap[news.category] || news.category);
-
-                const dateStr = new Date(news.timestamp).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'bn-BD', {
-                    month: 'short', day: 'numeric', year: 'numeric'
+                snapshot.forEach((doc) => {
+                    allNewsData.push({ id: doc.id, ...doc.data() });
                 });
 
-                const card = document.createElement('div');
-                card.className = 'news-card';
-                card.innerHTML = `
-                    <img src="${news.img}" alt="News Image" class="news-image">
-                    <div class="news-content">
-                        <div class="news-category">${displayCat}</div>
-                        <h3 class="news-title">${title}</h3>
-                        <p class="news-text">${desc}</p>
-                        <div class="news-meta">
-                            <span>${dateStr}</span>
-                            <span>Source: ${news.source}</span>
-                        </div>
-                    </div>
-                `;
-                newsFeed.appendChild(card);
-            });
-        }
+                allNewsData.sort((a, b) => b.timestamp - a.timestamp);
 
-        // Render Admin News List
-        function renderAdminList() {
-            adminNewsList.innerHTML = '';
-            allNewsData.forEach(news => {
-                const title = currentLang === 'en' ? news.title_en : news.title_bn;
-                const div = document.createElement('div');
-                div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; align-items:center;";
-                div.innerHTML = `
-                    <span>[${news.category}] ${title}</span>
-                    <button class="danger-btn" data-id="${news.id}">Delete</button>
-                `;
-                adminNewsList.appendChild(div);
+                if (allNewsData.length === 0) {
+                    seedDatabase();
+                } else {
+                    renderNews();
+                    renderAdminList();
+                }
+            }, (error) => {
+                loading.style.display = 'block';
+                errorMsg.innerText = "Firestore Read Error: " + error.message;
             });
 
-            // Attach delete listeners
-            document.querySelectorAll('.danger-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = e.target.getAttribute('data-id');
-                    if(confirm("Are you sure you want to delete this news?")) {
-                        await deleteDoc(doc(db, "news", id));
+            async function seedDatabase() {
+                try {
+                    const seedArticles = [
+                        {
+                            id: "seed-1",
+                            category: "National",
+                            img: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=800",
+                            source: "The Daily Star",
+                            title_en: "Ishraque announces resignation as state minister",
+                            desc_en: "Ishraque Hossain today announced his voluntary resignation as state minister for Liberation War Affairs following public outrage over a viral footage.",
+                            title_bn: "প্রতিমন্ত্রী পদ থেকে ইশরাকের পদত্যাগের ঘোষণা",
+                            desc_bn: "ভাইরাল হওয়া একটি ভিডিও নিয়ে ব্যাপক সমালোচনার মুখে মুক্তিযুদ্ধ বিষয়ক প্রতিমন্ত্রী ইশরাক হোসেন স্বেচ্ছায় পদত্যাগের ঘোষণা দিয়েছেন।",
+                            timestamp: Date.now()
+                        },
+                        {
+                            id: "seed-2",
+                            category: "Technology",
+                            img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800",
+                            source: "Reuters",
+                            title_en: "Perplexity open-sources SPACE for AI agents",
+                            desc_en: "Perplexity has open-sourced SPACE, allowing developers to adapt the technology to build safer autonomous AI agents in isolated environments.",
+                            title_bn: "এআই এজেন্টের জন্য পারপ্লেক্সিটি আনলো 'স্পেস'",
+                            desc_bn: "নিরাপদ এআই এজেন্ট তৈরি করতে ডেভেলপারদের জন্য পারপ্লেক্সিটি তাদের নতুন প্ল্যাটফর্ম 'স্পেস' ওপেন-সোর্স করেছে।",
+                            timestamp: Date.now() - 1000
+                        }
+                    ];
+
+                    for (let article of seedArticles) {
+                        await setDoc(doc(db, "news", article.id), article);
                     }
-                });
-            });
-        }
+                } catch (e) {
+                    loading.style.display = 'block';
+                    errorMsg.innerText = "Database Write Error: " + e.message;
+                }
+            }
 
-        // Handle
+            function renderNews() {
+                newsFeed.innerHTML = '';
+                
+                allNewsData.forEach(news => {
+                    if(!news.title_en) return; // skip empty docs
+                    const title = currentLang === 'en' ? news.title_en : news.title_bn;
+                    const desc = currentLang === 'en' ? news.desc_en : news.desc_bn;
+                    
+                    const catMap = {
+                        "National": "দেশ", "International": "বিদেশ", 
+                        "Sports": "খেলা", "Entertainment": "বিনোদন", 
+                        "Technology": "প্রযুক্তি", "Opinion": "মতামত"
+                    };
+                    const displayCat = currentLang === 'en' ? news.category : (catMap[news.category] || news.category);
+
+                    const dateStr = new Date(news.timestamp).toLocaleDateString(currentLang === 'en' ? 'en-US' : 'bn-BD', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                    });
+
+                    const card = document.createElement('div');
+                    card.className = 'news-card';
+                    card.innerHTML = `
+                        <img src="${news.img || 'https://via.placeholder.com/800x400'}" alt="News Image" class="news-image">
+                        <div class="news-content">
+                            <div class="news-category">${displayCat}</div>
+                            <h3 class="news-title">${title}</h3>
+                            <p class="news-text">${desc}</p>
+                            <div class="news-meta">
+                                <span>${dateStr}</span>
+                                <span>Source: ${news.source}</span>
+                            </div>
+                        </div>
+                    `;
+                    newsFeed.appendChild(card);
+                });
+            }
+
+            function renderAdminList() {
+                adminNewsList.innerHTML = '';
+                allNewsData.forEach(news => {
+                    if(!news.title_en) return;
+                    const title = currentLang === 'en' ? news.title_en : news.title_bn;
+                    const div = document.createElement('div');
+                    div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; align-items:center;";
+                    div.innerHTML = `
+                        <span>[${news.category}] ${title}</span>
+                        <button class="danger-btn" data-id="${news.id}">Delete</button>
+                    `;
+                    adminNewsList.appendChild(div);
+                });
+
+                document.querySelectorAll('.danger-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const id = e.target.getAttribute('data-id');
+                        if(confirm("Are you sure you want to delete this news?")) {
+                            await deleteDoc(doc(db, "news", id));
+                        }
+                    });
+                });
+            }
+
+            postForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const submitBtn = postForm.querySelector('button[type="submit"]');
+                submitBtn.innerText = "Publishing...";
+                submitBtn.disabled = true;
+
+                const newDocRef = doc(collection(db, "news"));
+                const newsData = {
+                    category: document.getElementById('cat').value,
+                    img: document.getElementById('img-url').value,
+                    title_en: document.getElementById('title-en').value,
+                    desc_en: docu
